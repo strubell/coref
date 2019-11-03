@@ -246,7 +246,8 @@ class CorefModel(object):
     return top_antecedents, top_antecedents_mask, top_fast_antecedent_scores, top_antecedent_offsets
 
 
-  def get_predictions_and_loss(self, input_ids, input_mask, text_len, speaker_ids, genre, is_training, gold_starts, gold_ends, cluster_ids, sentence_map):
+  def get_predictions_and_loss(self, input_ids, input_mask, text_len,
+      speaker_ids, genre, is_training, gold_starts, gold_ends, cluster_ids, sentence_map):
     model = modeling.BertModel(
       config=self.bert_config,
       is_training=is_training,
@@ -266,19 +267,45 @@ class CorefModel(object):
     antecedent_doc = mention_doc
 
 
-    flattened_sentence_indices = sentence_map
-    candidate_starts = tf.tile(tf.expand_dims(tf.range(num_words), 1), [1, self.max_span_width]) # [num_words, max_span_width]
-    candidate_ends = candidate_starts + tf.expand_dims(tf.range(self.max_span_width), 0) # [num_words, max_span_width]
-    candidate_start_sentence_indices = tf.gather(flattened_sentence_indices, candidate_starts) # [num_words, max_span_width]
-    candidate_end_sentence_indices = tf.gather(flattened_sentence_indices, tf.minimum(candidate_ends, num_words - 1)) # [num_words, max_span_width]
+    flattened_sentence_indices = sentence_map # This just came from the inputs
+
+    # Are these candidate starts really calculated?
+    candidate_starts = tf.tile(
+        tf.expand_dims(tf.range(num_words), 1), [1, self.max_span_width]) # [num_words, max_span_width]
+
+    # Adding spans of different lengths to the starts
+    candidate_ends = candidate_starts + tf.expand_dims(
+        tf.range(self.max_span_width), 0) # [num_words, max_span_width]
+
+    # Finding the sentence indices of the candidate starts? Or their within-sentence indices
+    candidate_start_sentence_indices = tf.gather(
+        flattened_sentence_indices, candidate_starts) # [num_words, max_span_width]
+
+    # Finding the sentence indices of the candidate starts? Or their within-sentence indices
+    candidate_end_sentence_indices = tf.gather(
+        flattened_sentence_indices, tf.minimum(candidate_ends, num_words - 1)) # [num_words, max_span_width]
+
+    # Masking how? the ones in which they start and end in the same sentence and they end before the end
     candidate_mask = tf.logical_and(candidate_ends < num_words, tf.equal(candidate_start_sentence_indices, candidate_end_sentence_indices)) # [num_words, max_span_width]
+
+    # What does flattened really mean
     flattened_candidate_mask = tf.reshape(candidate_mask, [-1]) # [num_words * max_span_width]
-    candidate_starts = tf.boolean_mask(tf.reshape(candidate_starts, [-1]), flattened_candidate_mask) # [num_candidates]
-    candidate_ends = tf.boolean_mask(tf.reshape(candidate_ends, [-1]), flattened_candidate_mask) # [num_candidates]
-    candidate_sentence_indices = tf.boolean_mask(tf.reshape(candidate_start_sentence_indices, [-1]), flattened_candidate_mask) # [num_candidates]
 
-    candidate_cluster_ids = self.get_candidate_labels(candidate_starts, candidate_ends, gold_starts, gold_ends, cluster_ids) # [num_candidates]
+    # Applying flattened mask to flattened sentences
+    candidate_starts = tf.boolean_mask(
+        tf.reshape(candidate_starts, [-1]), flattened_candidate_mask) # [num_candidates]
+    candidate_ends = tf.boolean_mask(
+        tf.reshape(candidate_ends, [-1]), flattened_candidate_mask) # [num_candidates]
 
+    # Sentences that the spans occur in
+    candidate_sentence_indices = tf.boolean_mask(
+        tf.reshape(candidate_start_sentence_indices, [-1]), flattened_candidate_mask) # [num_candidates]
+
+    # Just made up cluster ids (Based on gold clusters)
+    candidate_cluster_ids = self.get_candidate_labels(
+        candidate_starts, candidate_ends, gold_starts, gold_ends, cluster_ids) # [num_candidates]
+
+    # Embedding formation with the candidates (they should be gold by now)
     candidate_span_emb = self.get_span_emb(mention_doc, mention_doc, candidate_starts, candidate_ends) # [num_candidates, emb]
     candidate_mention_scores =  self.get_mention_scores(candidate_span_emb, candidate_starts, candidate_ends)
     candidate_mention_scores = tf.squeeze(candidate_mention_scores, 1) # [k]
