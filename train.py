@@ -3,6 +3,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import faulthandler; faulthandler.enable()
+
 import os
 import time
 
@@ -19,6 +21,9 @@ if __name__ == "__main__":
 
   report_frequency = config["report_frequency"]
   eval_frequency = config["eval_frequency"]
+  
+  config["ffnn_size"] = 20
+  config["use_features"] = False
 
   model = util.get_model(config)
   saver = tf.train.Saver()
