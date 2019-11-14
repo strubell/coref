@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 if __name__ == "__main__":
+  import pdb;
   config = util.initialize_from_env()
 
   report_frequency = config["report_frequency"]
@@ -51,7 +52,9 @@ if __name__ == "__main__":
 
     initial_time = time.time()
     while True:
+      print(session.run([model.predictions]))
       tf_loss, tf_global_step, _ = session.run([model.loss, model.global_step, model.train_op])
+      #import pdb;#pdb.set_trace()
       accumulated_loss += tf_loss
       # print('tf global_step', tf_global_step)
 

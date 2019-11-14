@@ -51,7 +51,7 @@ class CorefModel(object):
     self.enqueue_op = queue.enqueue(self.queue_input_tensors)
     self.input_tensors = queue.dequeue()
 
-    self.predictions, self.loss = self.get_predictions_and_loss(*self.input_tensors)
+    self.predictions, self.loss, self.debug = self.get_predictions_and_loss(*self.input_tensors)
     # bert stuff
     tvars = tf.trainable_variables()
     # If you're using TF weights only, tf_checkpoint and init_checkpoint can be the same
@@ -78,13 +78,29 @@ class CorefModel(object):
                       task_opt=self.config['task_optimizer'], eps=config['adam_eps'])
 
   def start_enqueue_thread(self, session):
+
+
+    #starts, ends = self.tensorize_mentions([[1,2], [3,4]])
+    #print(starts.shape)
+    #print(tf.expand_dims(starts, 1))
+    #print(tf.tile(tf.expand_dims(starts, 1), [1,1]).eval())
+    #candidate_starts = tf.tile(tf.expand_dims(tf.range(5), 1), [1, 6]) # [num_words, max_span_width]
+    #print(candidate_starts.eval())
+    #d = tf.constant([[1.0, 1.0], [0.0, 1.0]])
+    #e = tf.matmul(c, d)
+    #print(e)
+    #print(e.eval())
+
     with open(self.config["train_path"]) as f:
       train_examples = [json.loads(jsonline) for jsonline in f.readlines()]
     def _enqueue_loop():
+      i=0
       while True:
-        random.shuffle(train_examples)
+        #print(i)
+        #i += 1
+        #random.shuffle(train_examples)
         if self.config['single_example']:
-          for example in train_examples:
+          for example in train_examples[:10]:
             tensorized_example = self.tensorize_example(example, is_training=True)
             feed_dict = dict(zip(self.queue_input_tensors, tensorized_example))
             session.run(self.enqueue_op, feed_dict=feed_dict)
@@ -140,19 +156,17 @@ class CorefModel(object):
     for cluster in clusters:
       new_cluster = []
       for start, end in cluster:
-        if end - start > self.max_span_width:
-          continue
-        elif end > 10:
+        if end - start >= self.max_span_width:
           continue
         else:
           new_cluster.append([start, end])
       if new_cluster:
         new_clusters.append(new_cluster)
     return new_clusters
+      
 
   def tensorize_example(self, example, is_training):
-    clusters = example["clusters"]
-    clusters = self._modify_clusters(clusters)
+    clusters = self._modify_clusters(example["clusters"])
 
     gold_mentions = sorted(tuple(m) for m in util.flatten(clusters))
     gold_mention_map = {m:i for i,m in enumerate(gold_mentions)}
@@ -162,6 +176,7 @@ class CorefModel(object):
         cluster_ids[gold_mention_map[tuple(mention)]] = cluster_id + 1
 
     sentences = example["sentences"]
+    #print(sentences)
     num_words = sum(len(s) for s in sentences)
     speakers = example["speakers"]
     # assert num_words == len(speakers), (num_words, len(speakers))
@@ -280,14 +295,13 @@ class CorefModel(object):
     num_words = util.shape(mention_doc, 0)
     antecedent_doc = mention_doc
 
-
     flattened_sentence_indices = sentence_map
-    candidate_starts = tf.tile(tf.expand_dims(tf.range(num_words), 1), [1, self.max_span_width]) # [num_words, max_span_width]
-    candidate_ends = candidate_starts + tf.expand_dims(tf.range(self.max_span_width), 0) # [num_words, max_span_width]
-
-    candidate_starts = tf.tile(tf.expand_dims(gold_starts, 1), [1, 1])
-    candidate_ends = tf.tile(tf.expand_dims(gold_ends, 1), [1, 1])
-
+    old_candidate_starts = tf.tile(tf.expand_dims(tf.range(num_words), 1), [1, self.max_span_width]) # [num_words, max_span_width]
+    old_candidate_ends = old_candidate_starts + tf.expand_dims(tf.range(self.max_span_width), 0) # [num_words, max_span_width]
+    import pdb; #pdb.set_trace()
+    candidate_starts = tf.tile(tf.expand_dims(gold_starts, 1), [1, 1]) # [num_words, max_span_width]
+    candidate_ends = tf.tile(tf.expand_dims(gold_ends, 1), [1, 1]) # [num_words, max_span_width]
+    #print("gold", gold_candidate_starts.shape, gold_candidate_ends.shape)
     candidate_start_sentence_indices = tf.gather(flattened_sentence_indices, candidate_starts) # [num_words, max_span_width]
     candidate_end_sentence_indices = tf.gather(flattened_sentence_indices, tf.minimum(candidate_ends, num_words - 1)) # [num_words, max_span_width]
     candidate_mask = tf.logical_and(candidate_ends < num_words, tf.equal(candidate_start_sentence_indices, candidate_end_sentence_indices)) # [num_words, max_span_width]
@@ -362,7 +376,11 @@ class CorefModel(object):
     loss = self.softmax_loss(top_antecedent_scores, top_antecedent_labels) # [k]
     loss = tf.reduce_sum(loss) # []
 
-    return [candidate_starts, candidate_ends, candidate_mention_scores, top_span_starts, top_span_ends, top_antecedents, top_antecedent_scores], loss
+    return [
+
+      old_candidate_starts, old_candidate_ends, #candidate_starts, candidate_ends, gold_starts, gold_ends, #candidate_mention_scores, top_span_starts, top_span_ends, top_antecedents, top_antecedent_scores
+
+      ], loss, {}
 
 
   def get_span_emb(self, head_emb, context_outputs, span_starts, span_ends):
