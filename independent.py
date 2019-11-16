@@ -22,7 +22,7 @@ from pytorch_to_tf import load_from_pytorch_checkpoint
 def _exclude_long_spans(clusters):
   new_clusters = []
   for cluster in clusters:
-    new_cluster = [[start, end] for start, end in cluster if start - end < 30]
+    new_cluster = [[start, end] for start, end in cluster if end - start < 30]
     new_clusters.append(new_cluster)
   return new_clusters
 
