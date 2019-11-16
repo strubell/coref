@@ -19,6 +19,13 @@ from bert import tokenization
 from bert import modeling
 from pytorch_to_tf import load_from_pytorch_checkpoint
 
+def _exclude_long_spans(clusters):
+  new_clusters = []
+  for cluster in clusters:
+    new_cluster = [[start, end] for start, end in cluster if start - end <= 30]
+    new_clusters.append(new_cluster)
+  return new_clusters
+
 
 class CorefModel(object):
   def __init__(self, config):
@@ -138,6 +145,8 @@ class CorefModel(object):
 
   def tensorize_example(self, example, is_training):
     clusters = example["clusters"]
+    clusters = _exclude_long_spans(clusters)
+    
 
     gold_mentions = sorted(tuple(m) for m in util.flatten(clusters))
     gold_mention_map = {m:i for i,m in enumerate(gold_mentions)}
