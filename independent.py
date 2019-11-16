@@ -87,6 +87,7 @@ class CorefModel(object):
   def start_enqueue_thread(self, session):
     with open(self.config["train_path"]) as f:
       train_examples = [json.loads(jsonline) for jsonline in f.readlines()]
+      train_examples = train_examples[1500:1750]
     def _enqueue_loop():
       while True:
         random.shuffle(train_examples)
@@ -254,7 +255,35 @@ class CorefModel(object):
     top_antecedent_offsets = util.batch_gather(antecedent_offsets, top_antecedents) # [k, c]
     return top_antecedents, top_antecedents_mask, top_fast_antecedent_scores, top_antecedent_offsets
 
+  def start_end_stuff(self, sentence_map, num_words):
+    flattened_sentence_indices = sentence_map
+    candidate_starts = tf.tile(tf.expand_dims(tf.range(num_words), 1), [1, self.max_span_width]) # [num_words, max_span_width]
+    candidate_ends = candidate_starts + tf.expand_dims(tf.range(self.max_span_width), 0) # [num_words, max_span_width]
+    candidate_start_sentence_indices = tf.gather(flattened_sentence_indices, candidate_starts) # [num_words, max_span_width]
+    candidate_end_sentence_indices = tf.gather(flattened_sentence_indices, tf.minimum(candidate_ends, num_words - 1)) # [num_words, max_span_width]
+    candidate_mask = tf.logical_and(candidate_ends < num_words, tf.equal(candidate_start_sentence_indices, candidate_end_sentence_indices)) # [num_words, max_span_width]
+    flattened_candidate_mask = tf.reshape(candidate_mask, [-1]) # [num_words * max_span_width]
+    candidate_starts = tf.boolean_mask(tf.reshape(candidate_starts, [-1]), flattened_candidate_mask) # [num_candidates]
+    candidate_ends = tf.boolean_mask(tf.reshape(candidate_ends, [-1]), flattened_candidate_mask) # [num_candidates]
+    candidate_sentence_indices = tf.boolean_mask(tf.reshape(candidate_start_sentence_indices, [-1]), flattened_candidate_mask) # [num_candidates]
 
+    return candidate_starts, candidate_ends, candidate_sentence_indices
+  
+
+  def new_start_end_stuff(self, sentence_map, num_words, gold_starts, gold_ends):
+    flattened_sentence_indices = sentence_map
+    candidate_starts = tf.expand_dims(gold_starts, 1) # [num_words, max_span_width]
+    candidate_ends = tf.expand_dims(gold_ends, 1) # [num_words, max_span_width]
+    candidate_start_sentence_indices = tf.gather(flattened_sentence_indices, candidate_starts) # [num_words, max_span_width]
+    candidate_end_sentence_indices = tf.gather(flattened_sentence_indices, tf.minimum(candidate_ends, num_words - 1)) # [num_words, max_span_width]
+    candidate_mask = tf.logical_and(candidate_ends < num_words, tf.equal(candidate_start_sentence_indices, candidate_end_sentence_indices)) # [num_words, max_span_width]
+    flattened_candidate_mask = tf.reshape(candidate_mask, [-1]) # [num_words * max_span_width]
+    candidate_starts = tf.boolean_mask(tf.reshape(candidate_starts, [-1]), flattened_candidate_mask) # [num_candidates]
+    candidate_ends = tf.boolean_mask(tf.reshape(candidate_ends, [-1]), flattened_candidate_mask) # [num_candidates]
+    candidate_sentence_indices = tf.boolean_mask(tf.reshape(candidate_start_sentence_indices, [-1]), flattened_candidate_mask) # [num_candidates]
+
+    return candidate_starts, candidate_ends, candidate_sentence_indices
+  
   def get_predictions_and_loss(self, input_ids, input_mask, text_len, speaker_ids, genre, is_training, gold_starts, gold_ends, cluster_ids, sentence_map):
     model = modeling.BertModel(
       config=self.bert_config,
@@ -274,19 +303,16 @@ class CorefModel(object):
     num_words = util.shape(mention_doc, 0)
     antecedent_doc = mention_doc
 
+    (candidate_starts, candidate_ends,
+      candidate_sentence_indices) = self.start_end_stuff(sentence_map, num_words)
 
-    flattened_sentence_indices = sentence_map
-    candidate_starts = tf.tile(tf.expand_dims(tf.range(num_words), 1), [1, self.max_span_width]) # [num_words, max_span_width]
-    #candidate_starts = tf.expand_dims(gold_starts, 1)
-    candidate_ends = candidate_starts + tf.expand_dims(tf.range(self.max_span_width), 0) # [num_words, max_span_width]
-    #candidate_ends = tf.expand_dims(gold_ends, 1)
-    candidate_start_sentence_indices = tf.gather(flattened_sentence_indices, candidate_starts) # [num_words, max_span_width]
-    candidate_end_sentence_indices = tf.gather(flattened_sentence_indices, tf.minimum(candidate_ends, num_words - 1)) # [num_words, max_span_width]
-    candidate_mask = tf.logical_and(candidate_ends < num_words, tf.equal(candidate_start_sentence_indices, candidate_end_sentence_indices)) # [num_words, max_span_width]
-    flattened_candidate_mask = tf.reshape(candidate_mask, [-1]) # [num_words * max_span_width]
-    candidate_starts = tf.boolean_mask(tf.reshape(candidate_starts, [-1]), flattened_candidate_mask) # [num_candidates]
-    candidate_ends = tf.boolean_mask(tf.reshape(candidate_ends, [-1]), flattened_candidate_mask) # [num_candidates]
-    candidate_sentence_indices = tf.boolean_mask(tf.reshape(candidate_start_sentence_indices, [-1]), flattened_candidate_mask) # [num_candidates]
+  
+    (new_candidate_starts, new_candidate_ends,
+      new_candidate_sentence_indices) = self.new_start_end_stuff(sentence_map, num_words, gold_starts, gold_ends)
+
+    (candidate_starts, candidate_ends,
+      candidate_sentence_indices) = (new_candidate_starts, new_candidate_ends, new_candidate_sentence_indices)
+    
 
     candidate_cluster_ids = self.get_candidate_labels(candidate_starts, candidate_ends, gold_starts, gold_ends, cluster_ids) # [num_candidates]
 
@@ -354,7 +380,7 @@ class CorefModel(object):
     loss = self.softmax_loss(top_antecedent_scores, top_antecedent_labels) # [k]
     loss = tf.reduce_sum(loss) # []
 
-    return [candidate_starts, candidate_ends, candidate_mention_scores, top_span_starts, top_span_ends, top_antecedents, top_antecedent_scores], loss
+    return [new_candidate_starts, new_candidate_ends, candidate_starts, candidate_ends, candidate_mention_scores, top_span_starts, top_span_ends, top_antecedents, top_antecedent_scores], loss
 
 
   def get_span_emb(self, head_emb, context_outputs, span_starts, span_ends):
