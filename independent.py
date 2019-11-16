@@ -277,9 +277,9 @@ class CorefModel(object):
 
     flattened_sentence_indices = sentence_map
     candidate_starts = tf.tile(tf.expand_dims(tf.range(num_words), 1), [1, self.max_span_width]) # [num_words, max_span_width]
-    candidate_starts = tf.expand_dims(gold_starts, 1)
+    #candidate_starts = tf.expand_dims(gold_starts, 1)
     candidate_ends = candidate_starts + tf.expand_dims(tf.range(self.max_span_width), 0) # [num_words, max_span_width]
-    candidate_ends = tf.expand_dims(gold_ends, 1)
+    #candidate_ends = tf.expand_dims(gold_ends, 1)
     candidate_start_sentence_indices = tf.gather(flattened_sentence_indices, candidate_starts) # [num_words, max_span_width]
     candidate_end_sentence_indices = tf.gather(flattened_sentence_indices, tf.minimum(candidate_ends, num_words - 1)) # [num_words, max_span_width]
     candidate_mask = tf.logical_and(candidate_ends < num_words, tf.equal(candidate_start_sentence_indices, candidate_end_sentence_indices)) # [num_words, max_span_width]
