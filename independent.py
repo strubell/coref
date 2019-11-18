@@ -315,7 +315,6 @@ class CorefModel(object):
     candidate_cluster_ids = self.get_candidate_labels(candidate_starts, candidate_ends, gold_starts, gold_ends, cluster_ids) # [num_candidates]
 
     candidate_span_emb = self.get_span_emb(mention_doc, mention_doc, candidate_starts, candidate_ends) # [num_candidates, emb]
-
     candidate_mention_scores = self.get_mention_scores(candidate_span_emb, candidate_starts, candidate_ends)
     candidate_mention_scores = tf.squeeze(candidate_mention_scores, 1) # [k]
 
