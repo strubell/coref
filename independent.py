@@ -306,32 +306,18 @@ class CorefModel(object):
     (candidate_starts, candidate_ends,
       candidate_sentence_indices) = self.start_end_stuff(sentence_map, num_words)
 
-  
     (new_candidate_starts, new_candidate_ends,
       new_candidate_sentence_indices) = self.new_start_end_stuff(sentence_map, num_words, gold_starts, gold_ends)
 
     (candidate_starts, candidate_ends,
       candidate_sentence_indices) = (new_candidate_starts, new_candidate_ends, new_candidate_sentence_indices)
-    
 
     candidate_cluster_ids = self.get_candidate_labels(candidate_starts, candidate_ends, gold_starts, gold_ends, cluster_ids) # [num_candidates]
 
     candidate_span_emb = self.get_span_emb(mention_doc, mention_doc, candidate_starts, candidate_ends) # [num_candidates, emb]
 
-    # candidate_span_emb = tf.Print(candidate_span_emb, [tf.shape(candidate_span_emb), candidate_span_emb], "candidate_span_emb", summarize=20)
-
     candidate_mention_scores = self.get_mention_scores(candidate_span_emb, candidate_starts, candidate_ends)
     candidate_mention_scores = tf.squeeze(candidate_mention_scores, 1) # [k]
-
-    # candidate_mention_scores = tf.Print(candidate_mention_scores, [tf.shape(candidate_mention_scores), candidate_mention_scores], "candidate_mention_scores", summarize=20)
-
-
-    # potential problems: candidate_starts, candidate_ends, candidate_mention_sores
-    # candidate_starts = tf.Print(candidate_starts, [tf.shape(candidate_starts), candidate_starts], "candidate_starts", summarize=20)
-    # candidate_starts = tf.Print(candidate_starts, [tf.shape(new_candidate_starts), new_candidate_starts], "new_candidate_starts", summarize=20)
-    #
-    # candidate_ends = tf.Print(candidate_ends, [tf.shape(candidate_ends), candidate_ends], "candidate_ends", summarize=20)
-    # candidate_ends = tf.Print(candidate_ends, [tf.shape(new_candidate_ends), new_candidate_ends], "new_candidate_ends", summarize=20)
 
     # beam size
     k = tf.minimum(3900, tf.to_int32(tf.floor(tf.to_float(num_words) * self.config["top_span_ratio"])))
@@ -369,14 +355,8 @@ class CorefModel(object):
     else:
         top_span_speaker_ids = None
 
-
     dummy_scores = tf.zeros([k, 1]) # [k, 1]
-    # top_span_mention_scores = tf.Print(top_span_mention_scores, [tf.shape(top_span_mention_scores), top_span_mention_scores], "top_span_mention_scores", summarize=20)
-    # top_span_emb = tf.Print(top_span_emb, [tf.shape(top_span_emb), top_span_emb], "top_span_emb", summarize=20)
-
-
     top_antecedents, top_antecedents_mask, top_fast_antecedent_scores, top_antecedent_offsets = self.coarse_to_fine_pruning(top_span_emb, top_span_mention_scores, c)
-
 
     num_segs, seg_len = util.shape(input_ids, 0), util.shape(input_ids, 1)
     word_segments = tf.tile(tf.expand_dims(tf.range(0, num_segs), 1), [1, seg_len])
@@ -399,9 +379,6 @@ class CorefModel(object):
     else:
         top_antecedent_scores = top_fast_antecedent_scores
 
-    # top_antecedent_scores = tf.Print(top_antecedent_scores, [tf.shape(top_fast_antecedent_scores), top_fast_antecedent_scores], "top fast antecedent scores", summarize=20)
-
-
     top_antecedent_scores = tf.concat([dummy_scores, top_antecedent_scores], 1) # [k, c + 1]
 
     top_antecedent_cluster_ids = tf.gather(top_span_cluster_ids, top_antecedents) # [k, c]
@@ -412,13 +389,9 @@ class CorefModel(object):
     dummy_labels = tf.logical_not(tf.reduce_any(pairwise_labels, 1, keepdims=True)) # [k, 1]
     top_antecedent_labels = tf.concat([dummy_labels, pairwise_labels], 1) # [k, c + 1]
 
-    # top_antecedent_scores = tf.Print(top_antecedent_scores, [tf.shape(top_antecedent_scores), top_antecedent_scores], "top antecedent scores", summarize=20)
-
-
     loss = self.softmax_loss(top_antecedent_scores, top_antecedent_labels) # [k]
     loss = tf.reduce_sum(loss) # []
 
-    # return [new_candidate_starts, new_candidate_ends, candidate_starts, candidate_ends, candidate_mention_scores, top_span_starts, top_span_ends, top_antecedents, top_antecedent_scores], loss
     return [candidate_starts, candidate_ends, candidate_mention_scores, top_span_starts, top_span_ends, top_antecedents, top_antecedent_scores], loss
 
 
