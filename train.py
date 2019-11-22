@@ -3,6 +3,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import faulthandler; faulthandler.enable()
+
 import os
 import time
 
@@ -15,10 +17,14 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 if __name__ == "__main__":
+  import pdb;
   config = util.initialize_from_env()
 
   report_frequency = config["report_frequency"]
   eval_frequency = config["eval_frequency"]
+  
+  config["ffnn_size"] = 20
+  config["use_features"] = False
 
   model = util.get_model(config)
   saver = tf.train.Saver()
@@ -46,7 +52,9 @@ if __name__ == "__main__":
 
     initial_time = time.time()
     while True:
+      print(session.run([model.predictions]))
       tf_loss, tf_global_step, _ = session.run([model.loss, model.global_step, model.train_op])
+      #import pdb;#pdb.set_trace()
       accumulated_loss += tf_loss
       # print('tf global_step', tf_global_step)
 
