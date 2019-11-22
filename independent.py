@@ -148,11 +148,6 @@ class CorefModel(object):
       if new_cluster:
         new_clusters.append(new_cluster)
     return new_clusters
-<<<<<<< HEAD
-
-=======
-      
->>>>>>> 6f23c170257f28fc43814a43c6f6c8f68664f30e
 
   def tensorize_example(self, example, is_training):
     clusters = self._modify_clusters(example["clusters"])
