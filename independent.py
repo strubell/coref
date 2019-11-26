@@ -84,6 +84,7 @@ class CorefModel(object):
       train_examples = [json.loads(jsonline) for jsonline in f.readlines()]
     def _enqueue_loop():
       while True:
+        random.shuffle(train_examples) # todo why was this removed?
         if self.config['single_example']:
           for example in train_examples:
             tensorized_example = self.tensorize_example(example, is_training=True)
