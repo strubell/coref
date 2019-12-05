@@ -28,14 +28,14 @@ do
 #    name=${cname#train_}
     SAVE="${SAVE_ROOT}/${cname}"
     mkdir -p ${SAVE}
-    SCRIPT=${JOBSCRIPTS}/run.${cname}.sh
-    SLURM=${JOBSCRIPTS}/run.${cname}.slrm
+    SCRIPT=${JOBSCRIPTS}/eval.${cname}.sh
+    SLURM=${JOBSCRIPTS}/eval.${cname}.slrm
     echo "#!/bin/sh" > ${SCRIPT}
     echo "#!/bin/sh" > ${SLURM}
 #    echo "source activate py36" >> ${SLURM}
-    echo "#SBATCH --job-name=$cname" >> ${SLURM}
-    echo "#SBATCH --output=$SAVE/$timestamp.out" >> ${SLURM}
-    echo "#SBATCH --error=$SAVE/$timestamp.err" >> ${SLURM}
+    echo "#SBATCH --job-name=eval-$cname" >> ${SLURM}
+    echo "#SBATCH --output=$SAVE/eval-$timestamp.out" >> ${SLURM}
+    echo "#SBATCH --error=$SAVE/eval-$timestamp.err" >> ${SLURM}
     echo "#SBATCH --signal=USR1@120" >> ${SLURM}
     echo "#SBATCH --partition=${queue}" >> ${SLURM}
   #    echo "#SBATCH --comment=ICRLDEADLINE" >> ${SLURM}
