@@ -60,13 +60,14 @@ do
         echo "#SBATCH --constraint=volta32gb" >> ${SLURM}
     fi
     echo "srun sh ${SCRIPT}" >> ${SLURM}
+    echo "cp ${SAVE}/preds.conll $PRED_ROOT/preds-$cname.conll" >> ${SLURM}
+    
 #    echo "source activate py36" >> ${SCRIPT}
     echo "echo \$SLURM_JOB_ID >> jobs" >> ${SCRIPT}
     echo "{ " >> ${SCRIPT}
     echo "echo $cname " >> ${SCRIPT}
     echo "cd $PROJ_ROOT" >> ${SCRIPT}
     echo "python3 -O evaluate.py $cname" >> ${SCRIPT}
-    echo "cp ${SAVE}/preds.conll $PRED_ROOT/preds-$cname.conll"
     echo "kill -9 \$\$" >> ${SCRIPT}
     echo "} & " >> ${SCRIPT}
     echo "child_pid=\$!" >> ${SCRIPT}
@@ -74,6 +75,6 @@ do
     echo "trap \"echo 'Signal received'; if [ \"\$SLURM_PROCID\" -eq \"0\" ]; then sbatch ${SLURM}; fi; kill -9 \$child_pid; \" USR1" >> ${SCRIPT}
     echo "while true; do     sleep 1; done" >> ${SCRIPT}
     echo "Created scripts: ${SLURM} ${SCRIPT}"
-    echo "Writing output: $output_prefixt.out"
+    echo "Writing output: $output_prefix.out"
     sbatch ${SLURM}
 done
