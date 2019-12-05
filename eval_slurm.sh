@@ -30,12 +30,13 @@ do
     mkdir -p ${SAVE}
     SCRIPT=${JOBSCRIPTS}/eval.${cname}.sh
     SLURM=${JOBSCRIPTS}/eval.${cname}.slrm
+    output_prefix=$SAVE/eval-$timestamp
     echo "#!/bin/sh" > ${SCRIPT}
     echo "#!/bin/sh" > ${SLURM}
 #    echo "source activate py36" >> ${SLURM}
     echo "#SBATCH --job-name=eval-$cname" >> ${SLURM}
-    echo "#SBATCH --output=$SAVE/eval-$timestamp.out" >> ${SLURM}
-    echo "#SBATCH --error=$SAVE/eval-$timestamp.err" >> ${SLURM}
+    echo "#SBATCH --output=$output_prefix.out" >> ${SLURM}
+    echo "#SBATCH --error=$output_prefix.err" >> ${SLURM}
     echo "#SBATCH --signal=USR1@120" >> ${SLURM}
     echo "#SBATCH --partition=${queue}" >> ${SLURM}
   #    echo "#SBATCH --comment=ICRLDEADLINE" >> ${SLURM}
@@ -62,6 +63,6 @@ do
     echo "trap \"echo 'Signal received'; if [ \"\$SLURM_PROCID\" -eq \"0\" ]; then sbatch ${SLURM}; fi; kill -9 \$child_pid; \" USR1" >> ${SCRIPT}
     echo "while true; do     sleep 1; done" >> ${SCRIPT}
     echo "Created scripts: ${SLURM} ${SCRIPT}"
-    echo "Writing output: $SAVE/$timestamp.out"
+    echo "Writing output: $output_prefixt.out"
     sbatch ${SLURM}
 done
