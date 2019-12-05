@@ -5,6 +5,9 @@ mkdir -p ${JOBSCRIPTS}
 queue=dev
 #queue=learnfair
 SAVE_ROOT=$PROJ_ROOT/models
+PRED_ROOT=$PROJ_ROOT/predictions
+mkdir -p $PRED_ROOT
+mkdir -p $SAVE_ROOT
 #mkdir -p stdout stderr
 #for cname in train_spanbert_large_conll12 ;
 #for cname in train_spanbert_base_conll12 \
@@ -56,6 +59,7 @@ do
     echo "echo $cname " >> ${SCRIPT}
     echo "cd $PROJ_ROOT" >> ${SCRIPT}
     echo "python3 -O evaluate.py $cname" >> ${SCRIPT}
+    echo "cp ${SAVE}/preds.conll $PRED_ROOT/preds-$cname-$timestamp.conll"
     echo "kill -9 \$\$" >> ${SCRIPT}
     echo "} & " >> ${SCRIPT}
     echo "child_pid=\$!" >> ${SCRIPT}
