@@ -62,7 +62,8 @@ if __name__ == "__main__":
 
       if tf_global_step  > 0 and tf_global_step % eval_frequency == 0:
         saver.save(session, os.path.join(log_dir, "model"), global_step=tf_global_step)
-        eval_summary, eval_f1 = model.evaluate(session, tf_global_step)
+        eval_summary, eval_f1 = model.evaluate(session, tf_global_step, eval_mode=False)
+        # eval_summary, eval_f1 = model.evaluate(session, tf_global_step, eval_mode=True)
 
         if eval_f1 > max_f1:
           max_f1 = eval_f1

@@ -35,6 +35,7 @@ def output_conll(input_file, output_file, predictions, subtoken_map):
     prediction_map[doc_key] = (start_map, end_map, word_map)
 
   word_index = 0
+  # input file is gold file
   for line in input_file.readlines():
     row = line.split()
     if len(row) == 0:
@@ -48,7 +49,7 @@ def output_conll(input_file, output_file, predictions, subtoken_map):
       output_file.write(line)
       output_file.write("\n")
     else:
-      assert get_doc_key(row[0], row[1]) == doc_key
+      assert get_doc_key(row[0], row[1]) == doc_key, "doc_key: {}, get_doc_key: {}".format(doc_key, get_doc_key(row[0], row[1]))
       coref_list = []
       if word_index in end_map:
         for cluster_id in end_map[word_index]:
@@ -89,9 +90,13 @@ def official_conll_eval(gold_path, predicted_path, metric, official_stdout=False
   f1 = float(coref_results_match.group(3))
   return { "r": recall, "p": precision, "f": f1 }
 
-def evaluate_conll(gold_path, predictions, subtoken_maps, official_stdout=False):
-  with tempfile.NamedTemporaryFile(delete=False, mode="w") as prediction_file:
+def evaluate_conll(gold_path, predictions, subtoken_maps, official_stdout=False, official_out_path=None):
+  # with tempfile.NamedTemporaryFile(delete=False, mode="w") as prediction_file:
+  print("official out path: {}".format(official_out_path))
+  preds_fname = official_out_path + "/preds.conll"
+  with open(preds_fname, 'w') as prediction_file:
     with open(gold_path, "r") as gold_file:
       output_conll(gold_file, prediction_file, predictions, subtoken_maps)
-    print("Predicted conll file: {}".format(prediction_file.name))
+    # print("Predicted conll file: {}".format(prediction_file.name))
+    print("Predicted conll file: {}".format(preds_fname))
   return { m: official_conll_eval(gold_file.name, prediction_file.name, m, official_stdout) for m in ("muc", "bcub", "ceafe") }

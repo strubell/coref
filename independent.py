@@ -369,7 +369,6 @@ class CorefModel(object):
 
     return [candidate_starts, candidate_ends, candidate_mention_scores, top_span_starts, top_span_ends, top_antecedents, top_antecedent_scores], loss
 
-
   def get_span_emb(self, head_emb, context_outputs, span_starts, span_ends):
     span_emb_list = []
 
@@ -586,7 +585,8 @@ class CorefModel(object):
 
     summary_dict = {}
     if eval_mode:
-      conll_results = conll.evaluate_conll(self.config["conll_eval_path"], coref_predictions, self.subtoken_maps, official_stdout )
+      print("log dir: {}".format(self.config["log_dir"]))
+      conll_results = conll.evaluate_conll(self.config["conll_eval_path"], coref_predictions, self.subtoken_maps, official_stdout, self.config["log_dir"])
       average_f1 = sum(results["f"] for results in conll_results.values()) / len(conll_results)
       summary_dict["Average F1 (conll)"] = average_f1
       print("Average F1 (conll): {:.2f}%".format(average_f1))
