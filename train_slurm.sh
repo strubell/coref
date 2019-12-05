@@ -2,7 +2,8 @@ timestamp=`date +%Y-%m-%d-%H-%M-%S`
 PROJ_ROOT=/private/home/strubell/research/coref
 JOBSCRIPTS=scripts
 mkdir -p ${JOBSCRIPTS}
-queue=learnfair
+queue=dev
+#queue=learnfair
 SAVE_ROOT=$PROJ_ROOT/models
 #mkdir -p stdout stderr
 #for cname in train_spanbert_large_conll12 ;
