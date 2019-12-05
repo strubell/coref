@@ -5,9 +5,17 @@ mkdir -p ${JOBSCRIPTS}
 queue=dev
 #queue=learnfair
 SAVE_ROOT=$PROJ_ROOT/models
-PRED_ROOT=$PROJ_ROOT/predictions
+PRED_ROOT=$PROJ_ROOT/predictions/$timestamp
 mkdir -p $PRED_ROOT
 mkdir -p $SAVE_ROOT
+
+# write current model performance to file in predictions dir
+# shellcheck disable=SC2045
+for d in $(ls $SAVE_ROOT); do
+  dir="$SAVE_ROOT/$d/stdout.log";
+  echo "$dir $(grep evaL $dir | tail -1 | awk '{print $10}')";
+done > $PRED_ROOT/model_f1s.txt
+
 #mkdir -p stdout stderr
 #for cname in train_spanbert_large_conll12 ;
 #for cname in train_spanbert_base_conll12 \
@@ -28,7 +36,6 @@ for cname in train_spanbert_base_conll12 \
              train_spanbert_large_preco_mult_gold ;
 do
     MEM="32g"
-#    name=${cname#train_}
     SAVE="${SAVE_ROOT}/${cname}"
     mkdir -p ${SAVE}
     SCRIPT=${JOBSCRIPTS}/eval.${cname}.sh
@@ -59,7 +66,7 @@ do
     echo "echo $cname " >> ${SCRIPT}
     echo "cd $PROJ_ROOT" >> ${SCRIPT}
     echo "python3 -O evaluate.py $cname" >> ${SCRIPT}
-    echo "cp ${SAVE}/preds.conll $PRED_ROOT/preds-$cname-$timestamp.conll"
+    echo "cp ${SAVE}/preds.conll $PRED_ROOT/preds-$cname.conll"
     echo "kill -9 \$\$" >> ${SCRIPT}
     echo "} & " >> ${SCRIPT}
     echo "child_pid=\$!" >> ${SCRIPT}
