@@ -22,11 +22,7 @@ done > $PRED_ROOT/model_f1s.txt
 #             train_spanbert_base_conll12_gold \
 #             train_spanbert_large_conll12 \
 #             train_spanbert_large_conll12_gold
-for cname in train_spanbert_base_conll12 \
-             train_spanbert_base_conll12_gold \
-             train_spanbert_large_conll12 \
-             train_spanbert_large_conll12_gold \
-             train_spanbert_base_preco \
+for cname in train_spanbert_base_preco \
              train_spanbert_base_preco_gold \
              train_spanbert_large_preco \
              train_spanbert_large_preco_gold \
@@ -61,7 +57,7 @@ do
     fi
     echo "srun sh ${SCRIPT}" >> ${SLURM}
     echo "cp ${SAVE}/preds.conll $PRED_ROOT/preds-$cname.conll" >> ${SLURM}
-    
+
 #    echo "source activate py36" >> ${SCRIPT}
     echo "echo \$SLURM_JOB_ID >> jobs" >> ${SCRIPT}
     echo "{ " >> ${SCRIPT}
