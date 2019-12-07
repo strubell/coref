@@ -39,9 +39,9 @@ do
       MEM="32g"
       SAVE="${SAVE_ROOT}/${cname}"
       mkdir -p ${SAVE}
-      SCRIPT=${JOBSCRIPTS}/mentions-eval-$top_span_ratio.${cname}.sh
-      SLURM=${JOBSCRIPTS}/mentions-eval-$top_span_ratio.${cname}.slrm
-      output_prefix=$SAVE/mentions-eval-$top_span_ratio-$timestamp
+      SCRIPT="${JOBSCRIPTS}/mentions-eval-${top_span_ratio}.${cname}.sh"
+      SLURM="${JOBSCRIPTS}/mentions-eval-${top_span_ratio}.${cname}.slrm"
+      output_prefix="$SAVE/mentions-eval-${top_span_ratio}-$timestamp"
       echo "#!/bin/sh" > ${SCRIPT}
       echo "#!/bin/sh" > ${SLURM}
   #    echo "source activate py36" >> ${SLURM}
