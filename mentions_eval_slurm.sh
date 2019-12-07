@@ -40,9 +40,9 @@ do
       MEM="32g"
       SAVE="${SAVE_ROOT}/${cname}"
       mkdir -p ${SAVE}
-      SCRIPT=${JOBSCRIPTS}/eval.${cname}.sh
-      SLURM=${JOBSCRIPTS}/eval.${cname}.slrm
-      output_prefix=$SAVE/eval-$timestamp
+      SCRIPT=${JOBSCRIPTS}/mentions-eval.${cname}.sh
+      SLURM=${JOBSCRIPTS}/mentions-eval.${cname}.slrm
+      output_prefix=$SAVE/mentions-eval-$timestamp
       echo "#!/bin/sh" > ${SCRIPT}
       echo "#!/bin/sh" > ${SLURM}
   #    echo "source activate py36" >> ${SLURM}
@@ -80,7 +80,7 @@ do
           echo "#SBATCH --constraint=volta32gb" >> ${SLURM}
       fi
       echo "srun sh ${SCRIPT}" >> ${SLURM}
-      echo "cp ${SAVE}/preds.conll $PRED_ROOT/preds-$cname.conll" >> ${SLURM}
+#      echo "cp ${SAVE}/preds.conll $PRED_ROOT/preds-$cname.conll" >> ${SLURM}
 
   #    echo "source activate py36" >> ${SCRIPT}
       echo "echo \$SLURM_JOB_ID >> jobs" >> ${SCRIPT}
@@ -88,7 +88,7 @@ do
       echo "echo $cname " >> ${SCRIPT}
       echo "cd $PROJ_ROOT" >> ${SCRIPT}
       # mentions_and_scores.py models/train_spanbert_base_conll12 ~/research/spanbert_data_clean/dev.english.384.jsonlines 0.8 detected-mentions_spanbert-base_conll-dev_0-8.jsonl
-      echo "python3 -O mentions_and_scores.py $SAVE_ROOT/$cname $dev_file $top_span_ratio $out_file" >> ${SCRIPT}
+      echo "python3 -O mentions_and_scores.py $cname $dev_file $top_span_ratio $out_file" >> ${SCRIPT}
       echo "kill -9 \$\$" >> ${SCRIPT}
       echo "} & " >> ${SCRIPT}
       echo "child_pid=\$!" >> ${SCRIPT}
