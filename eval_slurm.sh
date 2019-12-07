@@ -21,7 +21,11 @@ done > $PRED_ROOT/model_f1s.txt
 for cname in train_spanbert_base_conll12 \
              train_spanbert_base_conll12_gold \
              train_spanbert_large_conll12 \
-             train_spanbert_large_conll12_gold
+             train_spanbert_large_conll12_gold \
+             train_bert_base_conll12 \
+             train_bert_base_conll12_gold \
+             train_bert_large_conll12 \
+             train_bert_large_conll12_gold ;
 #for cname in train_spanbert_base_preco \
 #             train_spanbert_base_preco_gold \
 #             train_spanbert_large_preco \
@@ -56,7 +60,6 @@ do
         echo "#SBATCH --constraint=volta32gb" >> ${SLURM}
     fi
     echo "srun sh ${SCRIPT}" >> ${SLURM}
-    echo "cp ${SAVE}/preds.conll $PRED_ROOT/preds-$cname.conll" >> ${SLURM}
 
 #    echo "source activate py36" >> ${SCRIPT}
     echo "echo \$SLURM_JOB_ID >> jobs" >> ${SCRIPT}
@@ -64,6 +67,7 @@ do
     echo "echo $cname " >> ${SCRIPT}
     echo "cd $PROJ_ROOT" >> ${SCRIPT}
     echo "python3 -O evaluate.py $cname" >> ${SCRIPT}
+    echo "cp ${SAVE}/preds.conll $PRED_ROOT/preds-$cname.conll" >> ${SCRIPT}
     echo "kill -9 \$\$" >> ${SCRIPT}
     echo "} & " >> ${SCRIPT}
     echo "child_pid=\$!" >> ${SCRIPT}
