@@ -19,13 +19,9 @@ mkdir -p $PRED_ROOT
 #mkdir -p stdout stderr
 #for cname in train_spanbert_large_conll12 ;
 for cname in train_spanbert_base_conll12 \
-             train_spanbert_base_conll12_gold \
              train_spanbert_large_conll12 \
-             train_spanbert_large_conll12_gold \
              train_bert_base_conll12 \
-             train_bert_base_conll12_gold \
-             train_bert_large_conll12 \
-             train_bert_large_conll12_gold ;
+             train_bert_large_conll12 ;
 #for cname in train_spanbert_base_preco \
 #             train_spanbert_base_preco_gold \
 #             train_spanbert_large_preco \
@@ -35,7 +31,7 @@ for cname in train_spanbert_base_conll12 \
 #             train_spanbert_large_preco_mult \
 #             train_spanbert_large_preco_mult_gold ;
 do
-  for top_span_ratio in 0.4 0.8; do
+  for top_span_ratio in 0.4 0.8 4.0; do
     MEM="32g"
     SAVE="${SAVE_ROOT}/${cname}"
     mkdir -p ${SAVE}
