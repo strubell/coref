@@ -16,8 +16,8 @@ def read_doc_keys(fname):
     return keys
 
 if __name__ == "__main__":
-  config = util.initialize_from_env(eval_test=True)
-  # config = util.initialize_from_env(eval_test=False)
+  # config = util.initialize_from_env(eval_test=True)
+  config = util.initialize_from_env(eval_test=False)
   model = util.get_model(config)
   saver = tf.train.Saver()
   log_dir = config["log_dir"]
