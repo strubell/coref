@@ -31,7 +31,7 @@ for cname in train_spanbert_base_conll12 \
 #             train_spanbert_large_preco_mult \
 #             train_spanbert_large_preco_mult_gold ;
 do
-  for top_span_ratio in 0.4 0.8 4.0; do
+  for top_span_ratio in 0.4 0.8 2.0; do
     MEM="32g"
     SAVE="${SAVE_ROOT}/${cname}"
     mkdir -p ${SAVE}
