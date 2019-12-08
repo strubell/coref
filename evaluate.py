@@ -7,6 +7,7 @@ import os
 
 import tensorflow as tf
 import util
+import sys
 
 def read_doc_keys(fname):
     keys = set()
@@ -17,7 +18,11 @@ def read_doc_keys(fname):
 
 if __name__ == "__main__":
   # config = util.initialize_from_env(eval_test=True)
-  config = util.initialize_from_env(eval_test=False)
+
+  experiments_conf = "experiments.conf"
+  if len(sys.argv) > 2:
+      experiments_conf = sys.argv[2]
+  config = util.initialize_from_env(eval_test=experiments_conf)
   model = util.get_model(config)
   saver = tf.train.Saver()
   log_dir = config["log_dir"]
