@@ -545,7 +545,8 @@ class CorefModel(object):
         mention_to_gold[mention] = gc
 
     predicted_clusters, mention_to_predicted = self.get_predicted_clusters(top_span_starts, top_span_ends, predicted_antecedents)
-    evaluator.update(predicted_clusters, gold_clusters, mention_to_predicted, mention_to_gold)
+    #TODO: need this for training eval
+    # evaluator.update(predicted_clusters, gold_clusters, mention_to_predicted, mention_to_gold)
     return predicted_clusters
 
   def load_eval_data(self):
