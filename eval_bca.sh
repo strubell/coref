@@ -25,7 +25,7 @@ cat /dev/null > $mention_score_outfile
 
 for metric in bcub ceafe muc lea; do
   metric_score_outfile=$out_dir/scores.$metric
-  cat /dev/null > $metric_score_outfile
+  echo -e "name\ttp\ttpfn\ttp\ttpfn\tp\tf1\t"> $metric_score_outfile
 done
 
 for corrected_file in $(ls $current_bca_dir/output.corrected.*); do
@@ -34,7 +34,7 @@ for corrected_file in $(ls $current_bca_dir/output.corrected.*); do
   scores=$(grep "Identification of Mentions: Recall:" $out_dir/$just_fname.eval.lea | \
            sed 's/[(%)]//g' | \
            awk '{print $5"\t"$7"\t"$8"\t"$10"\t"$12"\t"$13"\t"$15}')
-  echo $just_fname"\t"$scores >> $mention_score_outfile
+  echo -e $just_fname"\t"$scores >> $mention_score_outfile
 
   for metric in bcub ceafe muc lea; do
       metric_score_outfile=$out_dir/scores.$metric
@@ -42,6 +42,6 @@ for corrected_file in $(ls $current_bca_dir/output.corrected.*); do
       scores=$(grep "Coreference: Recall:" $out_dir/$just_fname.eval.$metric | \
       sed 's/[(%)]//g' | \
       awk '{print $5"\t"$7"\t"$8"\t"$10"\t"$12"\t"$13"\t"$15}')
-      echo $just_fname"\t" $scores >> $metric_score_outfile
+      echo -e $just_fname"\t"$scores >> $metric_score_outfile
     done
 done
