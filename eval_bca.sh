@@ -41,7 +41,7 @@ for corrected_file in $(ls $current_bca_dir/output.corrected.*); do
       cat /dev/null > $metric_score_outfile
       scores=$(grep "Coreference: Recall:" $out_dir/$just_fname.eval.$metric | \
       sed 's/[(%)]//g' | \
-      awk '{print $5"\t"$7"\t"$8"\t"$10"\t"$12"\t"$13"\t"$15}')
+      awk '{print $3"\t"$5"\t"$6"\t"$8"\t"$10"\t"$11"\t"$13}')
       echo -e $just_fname"\t"$scores >> $metric_score_outfile
     done
 done
