@@ -21,11 +21,11 @@ mkdir -p $out_dir
 #done
 
 mention_score_outfile=$out_dir/mentions.scores
-  echo -e "name\ttp\ttpfn\ttp\ttpfn\tp\tf1\t"> $mention_score_outfile
+  echo -e "name\ttp\ttpfn\tr\ttp\ttpfn\tp\tf1\t"> $mention_score_outfile
 
 for metric in bcub ceafe muc lea; do
   metric_score_outfile=$out_dir/scores.$metric
-  echo -e "name\ttp\ttpfn\ttp\ttpfn\tp\tf1\t"> $metric_score_outfile
+  echo -e "name\ttp\ttpfn\tr\ttp\ttpfn\tp\tf1\t"> $metric_score_outfile
 done
 
 for corrected_file in $(ls $current_bca_dir/output.corrected.*); do
