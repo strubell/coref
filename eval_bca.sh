@@ -14,13 +14,13 @@ key="$current_bca_dir/output.gold"
 out_dir="bca_scores_gold"
 mkdir -p $out_dir
 
-#for metric in bcub ceafe muc lea; do
-#  for corrected_file in $(ls $current_bca_dir/output.corrected.*); do
-#    echo $metric $corrected_file
-#    just_fname=${corrected_file##*/}
-#    perl $scorer_dir/scorer.pl $metric $key $corrected_file > $out_dir/$just_fname.eval.$metric
-#  done
-#done
+for metric in bcub ceafe muc lea; do
+  for corrected_file in $(ls $current_bca_dir/output.corrected.*); do
+    echo $metric $corrected_file
+    just_fname=${corrected_file##*/}
+    perl $scorer_dir/scorer.pl $metric $key $corrected_file > $out_dir/$just_fname.eval.$metric
+  done
+done
 
 mention_score_outfile=$out_dir/scores.mentions
 echo -e "name\ttp\ttpfn\tr\ttp\ttpfn\tp\tf1\t"> $mention_score_outfile
