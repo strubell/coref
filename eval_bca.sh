@@ -20,9 +20,16 @@ mkdir -p $out_dir
 #  done
 #done
 
+mention_score_outfile=$out_dir/mentions.scores
+cat /dev/null > $mention_score_outfile
+
+for metric in bcub ceafe muc lea; do
+  metric_score_outfile=$out_dir/scores.$metric
+  cat /dev/null > $metric_score_outfile
+done
+
 for corrected_file in $(ls $current_bca_dir/output.corrected.*); do
-  mention_score_outfile=$out_dir/mentions.scores
-  cat /dev/null > $mention_score_outfile
+
   just_fname=${corrected_file##*/}
   scores=$(grep "Identification of Mentions: Recall:" $out_dir/$just_fname.eval.lea | \
            sed 's/[(%)]//g' | \
