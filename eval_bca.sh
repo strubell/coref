@@ -10,6 +10,7 @@ current_bca_dir="$bca_dir/$model_output_dir"
 key="$current_bca_dir/output.gold"
 
 out_dir="bca_scores"
+mkdir -p $out_dir
 
 for metric in bcub ceafe muc lea; do
   for corrected_file in $(ls $current_bca_dir/output.corrected.*); do
