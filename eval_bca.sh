@@ -4,7 +4,7 @@ scorer_dir="reference-coreference-scorers"
 bca_dir="/mnt/nfs/work1/mccallum/coref/bca-output"
 
 #model_output_dir="best_spanbert_pred_outputs"
-model_output_dir="outputs"
+model_output_dir="output"
 
 
 current_bca_dir="$bca_dir/$model_output_dir"
