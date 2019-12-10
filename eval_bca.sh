@@ -18,7 +18,7 @@ mkdir -p $out_dir
 
 for metric in bcub ceafe muc lea; do
 #  for corrected_file in $(ls $current_bca_dir/output.corrected.*); do
-  for corrected_file in $(ls $current_bca_dir/output.best_gold.*); do
+  for corrected_file in $(ls $current_bca_dir/best_gold.corrected.*); do
     echo $metric $corrected_file
     just_fname=${corrected_file##*/}
     perl $scorer_dir/scorer.pl $metric $key $corrected_file > $out_dir/$just_fname.eval.$metric
