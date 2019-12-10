@@ -21,7 +21,7 @@ mkdir -p $out_dir
 #done
 
 mention_score_outfile=$out_dir/scores.mentions
-  echo -e "name\ttp\ttpfn\tr\ttp\ttpfn\tp\tf1\t"> $mention_score_outfile
+echo -e "name\ttp\ttpfn\tr\ttp\ttpfn\tp\tf1\t"> $mention_score_outfile
 
 for metric in bcub ceafe muc lea; do
   metric_score_outfile=$out_dir/scores.$metric
@@ -37,6 +37,7 @@ for corrected_file in $(ls $current_bca_dir/output.corrected.*); do
   echo -e $just_fname"\t"$scores >> $mention_score_outfile
 
   for metric in bcub ceafe muc lea; do
+      metric_score_outfile=$out_dir/scores.$metric
       scores=$(grep "Coreference: Recall:" $out_dir/$just_fname.eval.$metric | \
       sed 's/[(%)]//g' | \
       awk '{print $3"\t"$5"\t"$6"\t"$8"\t"$10"\t"$11"\t"$13}')
