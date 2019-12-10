@@ -3,13 +3,15 @@
 scorer_dir="reference-coreference-scorers"
 bca_dir="/mnt/nfs/work1/mccallum/coref/bca-output"
 
-model_output_dir="best_spanbert_pred_outputs"
+#model_output_dir="best_spanbert_pred_outputs"
+model_output_dir="outputs"
+
 
 current_bca_dir="$bca_dir/$model_output_dir"
 
 key="$current_bca_dir/output.gold"
 
-out_dir="bca_scores"
+out_dir="bca_scores_gold"
 mkdir -p $out_dir
 
 #for metric in bcub ceafe muc lea; do
