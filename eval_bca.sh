@@ -21,7 +21,7 @@ mkdir -p $out_dir
 #done
 
 mention_score_outfile=$out_dir/mentions.scores
-cat /dev/null > $mention_score_outfile
+  echo -e "name\ttp\ttpfn\ttp\ttpfn\tp\tf1\t"> $mention_score_outfile
 
 for metric in bcub ceafe muc lea; do
   metric_score_outfile=$out_dir/scores.$metric
