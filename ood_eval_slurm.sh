@@ -13,9 +13,13 @@ mkdir -p $PRED_ROOT
 for cname in train_spanbert_base_conll12 \
              train_spanbert_large_conll12 \
              train_bert_base_conll12 \
-             train_bert_large_conll12 ;
+             train_bert_large_conll12 \
+             train_spanbert_base_conll12_gold \
+             train_spanbert_large_conll12_gold \
+             train_bert_base_conll12_gold \
+             train_bert_large_conll12_gold ;
 do
-  for exp in gap wikicoref; do
+  for exp in preco_mult wikicoref_mult; do
     MEM="32g"
     SAVE="${SAVE_ROOT}/${cname}"
     mkdir -p ${SAVE}
