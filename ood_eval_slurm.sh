@@ -50,7 +50,7 @@ do
     echo "cd $PROJ_ROOT" >> ${SCRIPT}
     echo "python3 -O evaluate.py $cname $experiments_file" >> ${SCRIPT}
     echo "cp ${SAVE}/preds.conll $PRED_ROOT/preds-$cname-$exp.conll" >> ${SCRIPT}
-    acho "cp $output_prefix.out $PRED_ROOT/preds-$cname-$exp.scores" >> ${SCRIPT}
+    echo "cp $output_prefix.out $PRED_ROOT/preds-$cname-$exp.scores" >> ${SCRIPT}
     echo "kill -9 \$\$" >> ${SCRIPT}
     echo "} & " >> ${SCRIPT}
     echo "child_pid=\$!" >> ${SCRIPT}
