@@ -12,6 +12,7 @@ mkdir -p $PRED_ROOT
 #for cname in train_spanbert_large_conll12 ;
 for cname in train_spanbert_base_conll12 \
              train_spanbert_large_conll12 \
+             train_bert_base_conll12 \
              train_bert_large_conll12 ;
 do
   for exp in gap wikicoref; do
