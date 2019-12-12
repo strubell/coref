@@ -419,6 +419,7 @@ class CorefModel(object):
 
 
   def get_masked_mention_word_scores(self, encoded_doc, span_starts, span_ends):
+
       num_words = util.shape(encoded_doc, 0) # T
       num_c = util.shape(span_starts, 0) # NC
       doc_range = tf.tile(tf.expand_dims(tf.range(0, num_words), 0), [num_c, 1]) # [K, T]
