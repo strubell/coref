@@ -21,7 +21,7 @@ mkdir -p $PRED_ROOT
 for cname in train_bert_base_conll12 \
              train_bert_large_conll12 ;
 do
-  for exp in wikicoref_mult; do
+  for exp in preco_mult; do
     MEM="32g"
     SAVE="${SAVE_ROOT}/${cname}"
     mkdir -p ${SAVE}
