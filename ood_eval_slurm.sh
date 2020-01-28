@@ -10,14 +10,16 @@ mkdir -p $PRED_ROOT
 #mkdir -p $SAVE_ROOT
 
 #for cname in train_spanbert_large_conll12 ;
-for cname in train_spanbert_base_conll12 \
-             train_spanbert_large_conll12 \
-             train_bert_base_conll12 \
-             train_bert_large_conll12 \
-             train_spanbert_base_conll12_gold \
-             train_spanbert_large_conll12_gold \
-             train_bert_base_conll12_gold \
-             train_bert_large_conll12_gold ;
+#for cname in train_spanbert_base_conll12 \
+#             train_spanbert_large_conll12 \
+#             train_bert_base_conll12 \
+#             train_bert_large_conll12 \
+#             train_spanbert_base_conll12_gold \
+#             train_spanbert_large_conll12_gold \
+#             train_bert_base_conll12_gold \
+#             train_bert_large_conll12_gold ;
+for cname in train_bert_base_conll12 \
+             train_bert_large_conll12 ;
 do
   for exp in wikicoref_mult; do
     MEM="32g"
