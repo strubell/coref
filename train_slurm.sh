@@ -11,18 +11,24 @@ SAVE_ROOT=$PROJ_ROOT/models
 #             train_spanbert_base_conll12_gold \
 #             train_spanbert_large_conll12 \
 #             train_spanbert_large_conll12_gold ;
-for cname in train_spanbert_base_preco \
-             train_spanbert_base_preco_gold \
-             train_spanbert_large_preco \
-             train_spanbert_large_preco_gold \
-             train_spanbert_base_preco_mult \
-             train_spanbert_base_preco_mult_gold \
-             train_spanbert_large_preco_mult \
-             train_spanbert_large_preco_mult_gold ;
+#for cname in train_spanbert_base_preco \
+#             train_spanbert_base_preco_gold \
+#             train_spanbert_large_preco \
+#             train_spanbert_large_preco_gold \
+#             train_spanbert_base_preco_mult \
+#             train_spanbert_base_preco_mult_gold \
+#             train_spanbert_large_preco_mult \
+#             train_spanbert_large_preco_mult_gold ;
 #for cname in train_bert_base_conll12 \
 #             train_bert_base_conll12_gold \
 #             train_bert_large_conll12 \
 #             train_bert_large_conll12_gold ;
+
+for cname in train_spanbert_large_conll12_classic \
+             train_spanbert_large_conll12_gold \
+             train_spanbert_large_conll12_goldconst \
+             train_spanbert_large_conll12_predconst \
+             train_spanbert_large_conll12_sing;
 do
     MEM="32g"
 #    name=${cname#train_}
